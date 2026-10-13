@@ -1,0 +1,634 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Civora</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky header + scrolling nav strip, one content column (max 1120px) that collapses to a single column at phone width. */
+:root{
+  --bg:#f2f5fa; --surface:#ffffff; --ink:#10203c; --muted:#5a6a86; --line:#dbe2ee;
+  --accent:#0b4fd1; --accent-ink:#ffffff; --accent-soft:#e4ecff; --warm:#d9730d; --warm-soft:#fdeedd;
+  --good:#0f7a55; --good-soft:#dcf4ea; --warn:#9a6208; --warn-soft:#fcf0d4; --bad:#b42828; --bad-soft:#fbe3e3;
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif; --f-body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif; --f-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --shadow:0 1px 2px rgba(16,32,60,.06),0 8px 24px rgba(16,32,60,.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b1322; --surface:#121c31; --ink:#e7edf9; --muted:#93a3c0; --line:#24314d;
+  --accent:#6b97ff; --accent-ink:#0b1322; --accent-soft:#18284b; --warm:#f09a3e; --warm-soft:#3a2713;
+  --good:#4cc795; --good-soft:#0f2e25; --warn:#e6b04c; --warn-soft:#352a10; --bad:#f08080; --bad-soft:#391a1a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b1322; --surface:#121c31; --ink:#e7edf9; --muted:#93a3c0; --line:#24314d;
+  --accent:#6b97ff; --accent-ink:#0b1322; --accent-soft:#18284b; --warm:#f09a3e; --warm-soft:#3a2713;
+  --good:#4cc795; --good-soft:#0f2e25; --warn:#e6b04c; --warn-soft:#352a10; --bad:#f08080; --bad-soft:#391a1a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3); color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-inline:0}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(1.8rem,4vw,2.7rem)} h2{font-size:1.5rem} h3{font-size:1.1rem}
+p{margin:0}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.mono{font-family:var(--f-mono);font-size:.85em}
+.muted{color:var(--muted)}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:12px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:1.3rem;cursor:pointer;background:none;border:0;padding:0}
+.brand svg{width:30px;height:30px}
+.sp{flex:1}
+.nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin}
+.nav button{white-space:nowrap;background:none;border:0;padding:7px 12px;border-radius:999px;cursor:pointer;color:var(--muted);font-weight:500}
+.nav button[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+.nav button:hover{color:var(--ink)}
+main{padding-block:24px 64px;display:flex;flex-direction:column;gap:20px;min-height:70vh}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.warm{background:var(--warm);color:#fff;border-color:var(--warm)}
+.btn.sm{padding:5px 10px;font-size:.85rem;border-radius:8px}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+select,input,textarea{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%;min-width:0}
+select.inline{width:auto;padding:6px 10px}
+label{display:flex;flex-direction:column;gap:5px;font-weight:500;font-size:.9rem;min-width:0}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
+.card.lift{box-shadow:var(--shadow)}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:12px;min-width:0}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.78rem;font-weight:600;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.warm{background:var(--warm-soft);color:var(--warm)}
+.kpi{display:flex;flex-direction:column;gap:2px}
+.kpi b{font-family:var(--f-display);font-size:1.9rem;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:.85rem}
+.hero{background:linear-gradient(135deg,#072b78,#0b4fd1);color:#fff;border-radius:18px;padding:clamp(20px,4vw,40px);display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));position:relative;overflow:hidden}
+.hero p{opacity:.9;max-width:52ch}
+.hero .btn{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff}
+.hero .btn.primary{background:#fff;color:#072b78}
+.tile{display:flex;flex-direction:column;gap:6px;text-align:left;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.tile:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.tile .ic{width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.tile .ic svg{width:20px;height:20px}
+.tile b{font-family:var(--f-display);font-size:1.05rem}
+.tile span{color:var(--muted);font-size:.85rem}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;font-size:.9rem}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.bar-h{display:grid;grid-template-columns:minmax(80px,150px) 1fr 36px;gap:10px;align-items:center;font-size:.85rem}
+.bar-h i{display:block;height:10px;border-radius:5px;background:var(--accent)}
+.bar-h .track{background:var(--bg);border-radius:5px}
+.timeline{display:flex;flex-direction:column;gap:0;border-left:2px solid var(--line);margin-left:6px;padding-left:16px}
+.timeline>div{position:relative;padding-bottom:14px}
+.timeline>div::before{content:"";position:absolute;left:-23px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--surface)}
+.modal-bg{position:fixed;inset:0;background:rgba(5,12,28,.55);z-index:50;display:grid;place-items:center;padding:16px;overflow-y:auto}
+.modal{background:var(--surface);border-radius:16px;padding:22px;width:min(520px,100%);max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;z-index:60;font-weight:500;max-width:90vw}
+.chat{display:flex;flex-direction:column;gap:8px;height:300px;overflow-y:auto;padding:10px;background:var(--bg);border-radius:10px}
+.msg{max-width:85%;padding:8px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.detect{border:1px dashed var(--accent);border-radius:12px;padding:14px;background:var(--accent-soft)}
+.mapbox{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.mapbox svg{display:block;width:100%;height:auto}
+.mapbox text{fill:var(--muted);font-size:11px;font-family:var(--f-body);paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:8px 14px;cursor:pointer;font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.stars button{background:none;border:0;font-size:1.4rem;cursor:pointer;color:var(--line);padding:0 2px}
+.stars button.on{color:var(--warm)}
+.unread{border-left:4px solid var(--accent)}
+/* certificate paper */
+.paper{background:#fff;color:#1a2942;border:1px solid #d9e1eb;border-radius:6px;padding:24px 18px;text-align:center;box-shadow:var(--shadow)}
+.paper .muted{color:#68768b}
+.docmark{font-size:11px;letter-spacing:5px;font-weight:700;color:#586b85}
+.paper h4{margin:14px 0 8px;font-size:1.15rem;font-family:var(--f-display)}
+.stamp{display:inline-block;border:2px solid #b43a31;color:#a52b24;padding:6px 10px;font-size:11px;font-weight:700;margin:6px 0 10px}
+.disclaimer{font-size:12px;line-height:1.5;color:#75413b;max-width:370px;margin:0 auto}
+.details{text-align:left;max-width:380px;margin:18px auto 10px;border-top:1px solid #e7edf4}
+.detail{display:grid;grid-template-columns:100px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid #e7edf4;font-size:13px;overflow-wrap:anywhere}
+.detail b{color:#68768b;font-weight:600}
+.footnote{font-size:10px;color:#7a8798;margin-top:14px}
+.emptycert{min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;border:1px dashed var(--line);border-radius:12px;padding:16px}
+details.faq{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+details.faq summary{cursor:pointer}
+.seg{max-width:100%}
+.seg.wrap{display:flex;flex-wrap:wrap;overflow:visible;border:0;gap:6px}
+.seg.wrap button{border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.seg.wrap button[aria-pressed="true"]{border-color:var(--accent)}
+.err{color:var(--bad);background:var(--bad-soft);padding:8px 12px;border-radius:8px;font-weight:500}
+footer{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);font-size:.85rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div id="app"></div>
+
+<script>
+(function(){
+'use strict';
+/* ---------- helpers ---------- */
+var $=function(s,r){return (r||document).querySelector(s)};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function fmtD(iso){var d=new Date(iso);return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
+function fmtDT(iso){var d=new Date(iso);return fmtD(iso)+', '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}
+function inr(n){return '₹'+Number(n).toLocaleString('en-IN')}
+function ago(days,h){return new Date(Date.now()-days*864e5-(h||0)*36e5).toISOString()}
+function ahead(days){return new Date(Date.now()+days*864e5).toISOString()}
+var STORE='civora-v4';
+function load(){try{var s=localStorage.getItem(STORE);return s?JSON.parse(s):null}catch(e){return null}}
+function save(){try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}}
+
+/* ---------- domain data ---------- */
+var AREAS=[{n:'Kasba Bawada',x:300,y:190}];
+var STREETS=[
+ {n:'Kasba Bawada Main Road',g:'Main streets'},{n:'Line Bazar',g:'Main streets'},{n:'Sugar Factory Road',g:'Main streets'},
+ {n:'Bawada Chowk',g:'Junction'},{n:'Tarabai Park',g:'Landmark'},
+ {n:'Galli No. 1',g:'Gallis'},{n:'Galli No. 2',g:'Gallis'},{n:'Galli No. 3',g:'Gallis'},{n:'Galli No. 4',g:'Gallis'},{n:'Galli No. 5',g:'Gallis'}];
+function streetOf(loc){loc=loc||'';for(var i=0;i<STREETS.length;i++){if(loc.indexOf(STREETS[i].n)>=0)return STREETS[i].n}return 'Kasba Bawada Main Road'}
+function mainPt(t){return {x:50+500*t,y:300-200*t}}
+function streetPos(name,i){
+  var j=(i%3)-1;
+  if(name==='Kasba Bawada Main Road'){var m=mainPt(0.42+j*0.12);return {x:m.x,y:m.y}}
+  if(name==='Line Bazar')return {x:190+j*18,y:205+j*30};
+  if(name==='Sugar Factory Road')return {x:400+j*18,y:205+j*30};
+  if(name==='Bawada Chowk')return {x:mainPt(0.5).x+j*14,y:mainPt(0.5).y+j*14};
+  if(name==='Tarabai Park')return {x:250+j*14,y:310};
+  var g=/Galli No\. (\d)/.exec(name);if(g){var m2=mainPt(0.15*(+g[1]));return {x:m2.x+(j+1)*18,y:m2.y+(j+1)*40}}
+  return {x:300,y:200};
+}
+function streetChips(){return '<div class="stack"><b>Streets and gallis covered</b><div class="row">'+STREETS.map(function(x){return '<span class="pill'+(x.g==='Main streets'?' warm':'')+'">'+x.n+'</span>'}).join('')+'</div></div>'}
+var DEPTS=['Water Works','Sanitation','Roads & Paving','Electrical & Lighting','Drainage & Sewerage','Health & Hygiene'];
+var WATER=[{area:AREAS[0].n,days:[1,3,5],s:6,e:8,bar:2.4},{area:AREAS[0].n,days:[2,4,6],s:17,e:19,bar:2.2}];
+var GARB=[{area:AREAS[0].n,h:8,m:0,veh:'KMC-G001',types:['Wet','Dry']},{area:AREAS[0].n,h:11,m:0,veh:'KMC-G003',types:['Wet','Dry','E-waste']},{area:AREAS[0].n,h:15,m:30,veh:'KMC-G005',types:['Wet','Dry','Market waste']}];
+var DAYN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var KEYS=[
+ {k:/leak|pipe|water|tap|supply|burst/i,cat:'Water Pipeline Leakage',dept:'Water Works',pri:'High',eta:'24 hours',obj:['Pipe','Standing water']},
+ {k:/garbage|waste|trash|dump|litter|bin|smell/i,cat:'Garbage Overflow',dept:'Sanitation',pri:'Medium',eta:'12 hours',obj:['Waste pile','Overflowing bin']},
+ {k:/pothole|road|crack|asphalt|footpath|damage/i,cat:'Road Damage',dept:'Roads & Paving',pri:'Medium',eta:'3 days',obj:['Pothole','Broken surface']},
+ {k:/light|lamp|dark|electric|pole|wire|spark/i,cat:'Streetlight Failure',dept:'Electrical & Lighting',pri:'Medium',eta:'48 hours',obj:['Light pole']},
+ {k:/drain|sewer|sewage|overflow|manhole|clog/i,cat:'Drainage Blockage',dept:'Drainage & Sewerage',pri:'High',eta:'24 hours',obj:['Drain','Sewage']},
+ {k:/mosquito|dengue|stray|dead|hygiene|fever/i,cat:'Public Health Hazard',dept:'Health & Hygiene',pri:'High',eta:'24 hours',obj:['Stagnant water']}];
+function detect(text){
+  var t=text||'';var hit=null;for(var i=0;i<KEYS.length;i++){if(KEYS[i].k.test(t)){hit=KEYS[i];break}}
+  if(!hit)return null;
+  var urgent=/danger|urgent|accident|emergency|fire|spark|children|school|flood|burst|open manhole/i.test(t);
+  var conf=Math.min(98,78+Math.round(Math.min(t.length,120)/8)+(urgent?3:0));
+  return {category:hit.cat,department:hit.dept,priority:urgent?'Emergency':hit.pri,eta:urgent?'4 hours':hit.eta,confidence:conf,objects:hit.obj};
+}
+var SHA_K=[],SHA_H=[];(function(){var c=2;function isP(n){for(var d=2;d*d<=n;d++){if(n%d===0)return false}return true}
+  while(SHA_K.length<64){if(isP(c)){if(SHA_H.length<8)SHA_H.push((Math.pow(c,.5)%1)*4294967296|0);SHA_K.push((Math.pow(c,1/3)%1)*4294967296|0)}c++}})();
+function sha256(str){
+  function r(n,x){return (x>>>n)|(x<<(32-n))}
+  var by=unescape(encodeURIComponent(str)).split('').map(function(ch){return ch.charCodeAt(0)});
+  var bits=by.length*8;by.push(128);while(by.length%64!==56)by.push(0);
+  for(var i=7;i>=0;i--)by.push(i>=4?0:(bits>>>(i*8))&255);
+  var h=SHA_H.slice();
+  for(var o=0;o<by.length;o+=64){
+    var w=[],t;for(t=0;t<16;t++)w[t]=(by[o+t*4]<<24)|(by[o+t*4+1]<<16)|(by[o+t*4+2]<<8)|by[o+t*4+3];
+    for(t=16;t<64;t++){var s0=r(7,w[t-15])^r(18,w[t-15])^(w[t-15]>>>3),s1=r(17,w[t-2])^r(19,w[t-2])^(w[t-2]>>>10);w[t]=(w[t-16]+s0+w[t-7]+s1)|0}
+    var a=h[0],b=h[1],c=h[2],d=h[3],e=h[4],f=h[5],g=h[6],hh=h[7];
+    for(t=0;t<64;t++){var S1=r(6,e)^r(11,e)^r(25,e),ch=(e&f)^(~e&g),t1=(hh+S1+ch+SHA_K[t]+w[t])|0,S0=r(2,a)^r(13,a)^r(22,a),mj=(a&b)^(a&c)^(b&c),t2=(S0+mj)|0;hh=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0}
+    h=[(h[0]+a)|0,(h[1]+b)|0,(h[2]+c)|0,(h[3]+d)|0,(h[4]+e)|0,(h[5]+f)|0,(h[6]+g)|0,(h[7]+hh)|0];
+  }
+  return h.map(function(x){return ('00000000'+(x>>>0).toString(16)).slice(-8)}).join('');
+}
+function mkAccount(name,mobile,pw){var salt=Math.random().toString(36).slice(2,10);return {name:name,mobile:mobile,area:'Kasba Bawada',salt:salt,hash:sha256(salt+':'+pw),created:new Date().toISOString()}}
+function seed(){
+  var emps=[
+   ['EMP001','Suresh More','Water Works','Field Supervisor',AREAS[0].n,'Active',4.8,42],['EMP002','Ganesh Shinde','Sanitation','Sanitation Inspector',AREAS[0].n,'On Field',4.7,38],
+   ['EMP003','Vijay Patil','Roads & Paving','Senior Engineer',AREAS[0].n,'Active',4.9,55],['EMP004','Prakash Kadam','Electrical & Lighting','Line Worker',AREAS[0].n,'On Field',4.6,29],
+   ['EMP005','Ramesh Chougule','Drainage & Sewerage','Drainage Technician',AREAS[0].n,'Active',4.5,31],['EMP006','Anil Jadhav','Health & Hygiene','Health Inspector',AREAS[0].n,'Active',4.4,22],
+   ['EMP007','Sunil Pawar','Water Works','Junior Engineer',AREAS[0].n,'On Field',4.3,19],['EMP008','Mahesh Kamble','Sanitation','Field Officer',AREAS[0].n,'On Leave',4.2,17],
+   ['EMP009','Santosh Patil','Roads & Paving','Technician',AREAS[0].n,'Active',4.5,26],['EMP010','Dattatray Kulkarni','Electrical & Lighting','Inspector',AREAS[0].n,'Active',4.6,24]
+  ].map(function(e,i){return {id:e[0],name:e[1],dept:e[2],role:e[3],area:e[4],status:e[5],rating:e[6],done:e[7],mobile:'98221000'+(10+i)}});
+  function C(id,cat,desc,loc,area,st,pri,dept,emp,days,extra){
+    var c={id:id,cat:cat,desc:desc,loc:loc,area:area,status:st,pri:pri,dept:dept,emp:emp||'',stage:extra&&extra.stage||'',owner:'9876543210',submitted:ago(days),updated:ago(Math.max(0,days-1)),rating:extra&&extra.rating||0,remark:extra&&extra.remark||'',conf:extra&&extra.conf||0,
+      log:[{t:'Complaint submitted',d:'Registered through Civora',at:ago(days),who:'Citizen'}]};
+    if(st!=='Submitted'){c.log.push({t:'Assigned to '+dept,d:emp?'Officer '+emp+' assigned':'Routed to department',at:ago(days-0.2),who:'Admin'})}
+    if(st==='In Progress'){c.log.push({t:'Work started',d:'Crew is on site',at:ago(days-0.6),who:'Field team'})}
+    if(st==='Resolved'){c.log.push({t:'Work started',d:'Crew is on site',at:ago(days-0.6),who:'Field team'},{t:'Resolved',d:c.remark||'Issue fixed and verified',at:ago(days-1),who:'Field team'})}
+    return c}
+  var comps=[
+   C('CMP101','Water Pipeline Leakage','Main pipe has burst near Line Bazar and water is logging on the street.','Line Bazar, Kasba Bawada',AREAS[0].n,'In Progress','High','Water Works','EMP001',2,{stage:'In Progress',conf:94}),
+   C('CMP102','Garbage Overflow','Bins at Line Bazar chowk have not been cleared for three days.','Line Bazar Chowk',AREAS[0].n,'Assigned','Medium','Sanitation','EMP002',1,{stage:'Assigned',conf:91}),
+   C('CMP103','Road Damage','Deep pothole in front of the Sugar Factory Road school gate.','Sugar Factory Road, school gate',AREAS[0].n,'Submitted','Emergency','Roads & Paving','',0.3,{conf:89}),
+   C('CMP104','Streetlight Failure','Three streetlights are off on the Tarabai Park approach road.','Tarabai Park approach road',AREAS[0].n,'Resolved','Medium','Electrical & Lighting','EMP004',6,{stage:'Completed',remark:'Replaced faulty control box, all lights working.',rating:5,conf:93}),
+   C('CMP105','Drainage Blockage','Sewage overflowing from the manhole beside Bawada Chowk gate 2.','Bawada Chowk gate 2',AREAS[0].n,'Assigned','High','Drainage & Sewerage','EMP005',1.5,{stage:'Assigned',conf:96}),
+   C('CMP106','Public Health Hazard','Stagnant water collecting near the park is breeding mosquitoes.','Tarabai Park',AREAS[0].n,'Submitted','High','Health & Hygiene','',0.6,{conf:88})
+  ];
+  var certs=[
+   {id:'CE1',owner:'9876543210',type:'Residence Certificate',name:'Rohan Kumbhar',ref:'CRT-20418',date:ago(9),status:'Issued'},
+   {id:'CE2',owner:'9876543210',type:'Income Certificate',name:'Rohan Kumbhar',ref:'CRT-20977',date:ago(2),status:'Processing'}];
+  var notifs=[];
+  comps.forEach(function(c){c.street=streetOf(c.loc)});
+  return {user:null,view:'home',lang:'en',theme:'auto',emps:emps,comps:comps,certs:certs,accounts:[mkAccount('Rohan Kumbhar','9876543210','demo123')],notifs:notifs,nid:200,chat:[],modal:null};
+}
+var S=load()||seed();
+S.modal=null;
+
+/* ---------- i18n ---------- */
+var T={
+ en:{home:'Home',dashboard:'My Dashboard',water:'Water',garbage:'Garbage',complaint:'Report Issue',track:'Track',certs:'Certificates',map:'Live Map',help:'Help',profile:'Profile',admin:'Admin',tasks:'My Tasks',
+  hero:'Your city, one tap away',herop:'Report problems, track fixes and get certificates from Kolhapur Municipal Corporation for Kasba Bawada, from your phone.',login:'Sign in',logout:'Sign out',report:'Report an issue',services:'City services',welcome:'Welcome'},
+ hi:{home:'होम',dashboard:'मेरा डैशबोर्ड',water:'पानी',garbage:'कचरा',complaint:'शिकायत दर्ज करें',track:'ट्रैक',certs:'प्रमाणपत्र',map:'लाइव नक्शा',help:'सहायता',profile:'प्रोफ़ाइल',admin:'एडमिन',tasks:'मेरे कार्य',
+  hero:'आपका शहर, बस एक टैप दूर',herop:'कसबा बावडा के लिए कोल्हापुर महानगरपालिका की सेवाएं: शिकायत दर्ज करें, स्थिति देखें और प्रमाणपत्र पाएं।',login:'साइन इन',logout:'साइन आउट',report:'शिकायत दर्ज करें',services:'नागरिक सेवाएं',welcome:'स्वागत है'},
+ mr:{home:'मुख्यपृष्ठ',dashboard:'माझा डॅशबोर्ड',water:'पाणी',garbage:'कचरा',complaint:'तक्रार नोंदवा',track:'ट्रॅक',certs:'प्रमाणपत्रे',map:'लाइव्ह नकाशा',help:'मदत',profile:'प्रोफाइल',admin:'अॅडमिन',tasks:'माझी कामे',
+  hero:'तुमचे शहर, फक्त एका टॅपवर',herop:'कसबा बावडासाठी कोल्हापूर महानगरपालिकेच्या सेवा: तक्रार नोंदवा, प्रगती पहा आणि प्रमाणपत्रे मिळवा.',login:'साइन इन',logout:'साइन आउट',report:'तक्रार नोंदवा',services:'नागरी सेवा',welcome:'स्वागत आहे'}};
+function t(k){return (T[S.lang]&&T[S.lang][k])||T.en[k]||k}
+
+/* ---------- icons ---------- */
+var IC={
+ drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
+ trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+ flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+ pulse:'<path d="M3 12h4l2-6 4 12 2-6h6"/>',
+ card:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/>',
+ doc:'<path d="M7 3h8l4 4v14H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',
+ bell:'<path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/>',
+ map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7M12 17h.01"/>'};
+function ic(n){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[n]+'</svg>'}
+var LOGO='<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0b4fd1"/><path d="M8 22V12l8-5 8 5v10" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 22v-6h8v6" fill="none" stroke="#f09a3e" stroke-width="2.2" stroke-linejoin="round"/></svg>';
+
+/* ---------- state helpers ---------- */
+var toastT=null;
+function toast(m){var o=$('.toast');if(o)o.remove();var d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=m;document.body.appendChild(d);clearTimeout(toastT);toastT=setTimeout(function(){d.remove()},2600)}
+function notify(){}
+function pill(s){var m={Resolved:'good',Paid:'good',Issued:'good',Active:'good',Submitted:'warn',Pending:'warn',Due:'warn',Processing:'warn','Under Review':'warn',Overdue:'bad',Rejected:'bad',Emergency:'bad',High:'bad','On Leave':'bad',Assigned:'',  'In Progress':'warm','On Field':'warm',Medium:'warn',Low:''};return '<span class="pill '+(m[s]||'')+'">'+esc(s)+'</span>'}
+function mine(){var m=S.user&&S.user.mobile;return S.comps.filter(function(c){return c.owner===m})}
+function myCerts(){var m=S.user&&S.user.mobile;return S.certs.filter(function(c){return c.owner===m})}
+function nextCid(){var m=0;S.comps.forEach(function(c){m=Math.max(m,parseInt(c.id.slice(3),10))});return 'CMP'+(m+1)}
+function role(){return S.user?S.user.role:null}
+
+/* ---------- views ---------- */
+var V={};
+function nav(){
+  var r=role();var items=[];
+  if(r==='admin')items=[['admin','admin'],['map','map']];
+  else if(r==='employee')items=[['tasks','tasks'],['map','map']];
+  else items=[['home','home'],['dashboard','dashboard'],['complaint','complaint'],['track','track'],['water','water'],['garbage','garbage'],['certs','certs'],['map','map'],['help','help']];
+  if(!r)items=[['home','home'],['map','map'],['help','help']];
+  return '<nav class="nav wrap" aria-label="Main">'+items.map(function(i){
+    var label=t(i[1]);
+    return '<button data-act="go" data-v="'+i[0]+'"'+(S.view===i[0]?' aria-current="page"':'')+'>'+esc(label)+'</button>'}).join('')+'</nav>';
+}
+function shell(inner){
+  var u=S.user;
+  return '<header class="top"><div class="wrap"><div class="bar">'+
+   '<button class="brand" data-act="go" data-v="'+(u&&u.role==='admin'?'admin':u&&u.role==='employee'?'tasks':'home')+'" aria-label="Civora home">'+LOGO+'Civora</button><span class="muted" style="font-size:.8rem">Kolhapur Municipal Corporation</span><span class="sp"></span>'+
+   '<select class="inline" id="lang" aria-label="Language"><option value="en"'+(S.lang==='en'?' selected':'')+'>English</option><option value="hi"'+(S.lang==='hi'?' selected':'')+'>हिन्दी</option><option value="mr"'+(S.lang==='mr'?' selected':'')+'>मराठी</option></select>'+
+   '<button class="btn sm" data-act="theme" aria-label="Toggle theme">Theme: '+S.theme+'</button>'+
+   (u?'<button class="btn sm" data-act="go" data-v="profile">'+esc(u.name.split(' ')[0])+' · '+u.role+'</button><button class="btn sm" data-act="logout">'+t('logout')+'</button>':'<button class="btn primary sm" data-act="go" data-v="login">'+t('login')+'</button>')+
+   '</div></div>'+nav()+'</header><main class="wrap" id="main">'+inner+'</main><footer><div class="wrap">Civora is a student CEP project for Kasba Bawada, Kolhapur. All data is sample data stored in this browser. Helpline 1800-233-0000 (sample).</div></footer>';
+}
+function modalHtml(){return S.modal?'<div class="modal-bg" data-act="closeBg"><div class="modal" role="dialog" aria-modal="true">'+S.modal+'</div></div>':''}
+
+V.login=function(){
+  var tab=S.loginTab||'citizen';
+  var body='';
+  var mode=S.loginMode||'in';
+  if(tab==='citizen'){
+    body='<div class="seg" role="group" aria-label="Account"><button data-act="lmode" data-v="in" aria-pressed="'+(mode==='in')+'">Sign in</button><button data-act="lmode" data-v="up" aria-pressed="'+(mode==='up')+'">Create account</button></div>';
+    if(mode==='in')body+='<form data-form="login-citizen" class="stack"><label>Mobile number<input id="lm" value="9876543210" inputmode="numeric" maxlength="10" required autocomplete="username"></label><label>Password<input id="lp" type="password" value="demo123" required autocomplete="current-password"></label><p class="err" id="lerr" role="alert" hidden></p><button class="btn primary">Sign in</button><p class="muted">Demo account: 9876543210 / demo123. Or create your own account.</p></form>';
+    else body+='<form data-form="signup" class="stack"><label>Full name<input id="sn" required maxlength="60" autocomplete="name"></label><label>Mobile number (10 digits)<input id="sm" inputmode="numeric" maxlength="10" required autocomplete="username"></label><label>Password (at least 6 characters)<input id="sp" type="password" required minlength="6" autocomplete="new-password"></label><label>Confirm password<input id="sp2" type="password" required autocomplete="new-password"></label><label>Area<select id="sa"><option>Kasba Bawada</option></select></label><p class="err" id="lerr" role="alert" hidden></p><button class="btn primary">Create account</button><p class="muted">Accounts are saved in this browser only.</p></form>';
+  }
+  if(tab==='admin')body='<form data-form="login-admin" class="stack"><label>Username<input id="au" value="admin" autocomplete="off"></label><label>Password<input id="ap" type="password" value="admin123"></label><button class="btn primary">Open admin console</button><p class="muted">Demo login: admin / admin123</p></form>';
+  if(tab==='employee')body='<form data-form="login-emp" class="stack"><label>Employee ID<input id="eu" value="EMP001"></label><label>Password<input id="ep" type="password" value="emp123"></label><button class="btn primary">Open field tasks</button><p class="muted">Demo login: EMP001 to EMP010 with password emp123</p></form>';
+  return '<div style="max-width:460px;margin:0 auto;width:100%" class="stack"><h1>'+t('login')+'</h1><div class="seg" role="group" aria-label="Role">'+['citizen','employee','admin'].map(function(x){return '<button data-act="ltab" data-v="'+x+'" aria-pressed="'+(tab===x)+'">'+x[0].toUpperCase()+x.slice(1)+'</button>'}).join('')+'</div><div class="card lift">'+body+'</div></div>';
+};
+
+V.home=function(){
+  var open=S.comps.filter(function(c){return c.status!=='Resolved'&&c.status!=='Rejected'}).length;
+  var done=S.comps.filter(function(c){return c.status==='Resolved'}).length;
+  var tiles=[['complaint','flag','Report an issue','Potholes, leaks, garbage, lights'],['water','drop','Water supply','Timings and live pressure'],['garbage','trash','Garbage pickup','Truck ETA for your area'],['track','pulse','Track complaints','Status and timeline'],['certs','doc','Certificates','Apply and download'],['map','map','Live map','Trucks, crews, open issues']];
+  return '<section class="hero"><div class="stack" style="gap:16px"><span class="pill warm" style="width:fit-content">Kasba Bawada · Kolhapur</span><h1>'+t('hero')+'</h1><p>'+t('herop')+'</p><div class="row"><button class="btn primary" data-act="'+(S.user?'go':'needlogin')+'" data-v="complaint">'+t('report')+'</button><button class="btn" data-act="go" data-v="map">'+t('map')+'</button></div></div>'+weatherCard()+'</section>'+
+   '<div class="grid g4"><div class="card kpi"><b>'+open+'</b><span>Open complaints</span></div><div class="card kpi"><b>'+done+'</b><span>Resolved</span></div><div class="card kpi"><b>'+S.emps.filter(function(e){return e.status!=='On Leave'}).length+'</b><span>Field staff on duty</span></div><div class="card kpi"><b>'+GARB.length+'</b><span>Garbage trucks on routes</span></div></div>'+
+   '<h2>'+t('services')+'</h2><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))">'+tiles.map(function(x){return '<button class="tile" data-act="go" data-v="'+x[0]+'"><span class="ic">'+ic(x[1])+'</span><b>'+x[2]+'</b><span>'+x[3]+'</span></button>'}).join('')+'</div>';
+};
+function weatherCard(){
+  var h=new Date().getHours();var temp=24+Math.round(5*Math.sin((h-9)/24*Math.PI*2));var aqi=62;
+  return '<div class="card" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff"><div class="row between"><b>Kasba Bawada now</b><span class="mono">Sample data</span></div><div class="row" style="gap:28px;margin-top:10px"><div class="kpi"><b>'+temp+'°C</b><span style="color:#dfe8ff">Partly cloudy</span></div><div class="kpi"><b>'+aqi+'</b><span style="color:#dfe8ff">AQI · Moderate</span></div><div class="kpi"><b>78%</b><span style="color:#dfe8ff">Humidity</span></div></div></div>';
+}
+V.dashboard=function(){
+  var m=mine();var open=m.filter(function(c){return c.status!=='Resolved'&&c.status!=='Rejected'});
+    return '<h1>'+t('welcome')+', '+esc(S.user.name.split(' ')[0])+'</h1><div class="grid g4"><div class="card kpi"><b>'+open.length+'</b><span>Open complaints</span></div><div class="card kpi"><b>'+m.filter(function(c){return c.status==='Resolved'}).length+'</b><span>Resolved</span></div><div class="card kpi"><b>'+myCerts().length+'</b><span>Certificates</span></div></div>'+
+  '<div class="grid g2"><div class="card stack"><div class="row between"><h3>Recent complaints</h3><button class="btn sm" data-act="go" data-v="track">View all</button></div>'+m.slice(0,4).map(function(c){return '<div class="row between"><div><b>'+esc(c.cat)+'</b><div class="muted mono">'+c.id+' · '+fmtD(c.submitted)+'</div></div>'+pill(c.status)+'</div>'}).join('')+'</div>'+
+  '<div class="card stack"><div class="row between"><h3>Certificates</h3><button class="btn sm" data-act="go" data-v="certs">Apply</button></div>'+myCerts().slice(0,3).map(function(c){return '<div class="row between"><div><b>'+c.type+'</b><div class="muted mono">'+c.ref+'</div></div>'+pill(c.status)+'</div>'}).join('')+'</div></div>'+
+  '<div class="grid g2">'+waterNow(S.user.area)+garbNow(S.user.area)+'</div>';
+};
+function waterState(w){var d=new Date(),dow=d.getDay(),h=d.getHours()+d.getMinutes()/60;var today=w.days.indexOf(dow)>=0;
+  if(today&&h>=w.s&&h<w.e)return {s:'Flowing',left:Math.round((w.e-h)*60)};
+  for(var i=0;i<=7;i++){var dd=(dow+i)%7;if(w.days.indexOf(dd)>=0&&!(i===0&&h>=w.s))return {s:'Off',next:(i===0?'Today':i===1?'Tomorrow':DAYN[dd])+' '+hh(w.s)+'–'+hh(w.e)}}
+  return {s:'Off',next:'—'}}
+function hh(h){var ap=h>=12?'PM':'AM';var x=h%12;if(x===0)x=12;return x+':00 '+ap}
+function waterNow(area){var w=WATER.filter(function(x){return x.area===area})[0]||WATER[0];var st=waterState(w);
+  return '<div class="card stack"><div class="row between"><h3>Water in '+esc(w.area)+'</h3>'+(st.s==='Flowing'?'<span class="pill good">Flowing</span>':'<span class="pill warn">Off</span>')+'</div><p>'+(st.s==='Flowing'?'Supply ends in '+st.left+' minutes. Pressure '+w.bar+' bar.':'Next supply: <b>'+st.next+'</b>')+'</p></div>'}
+function garbEta(g){var d=new Date();var tgt=new Date();tgt.setHours(g.h,g.m,0,0);var diff=Math.round((tgt-d)/60000);
+  if(diff>0)return {s:'Scheduled',eta:diff};if(diff>-120)return {s:'On Route',eta:0};return {s:'Completed',eta:0}}
+function garbNow(area){var g=GARB.filter(function(x){return x.area===area})[0]||GARB[0];var s=garbEta(g);
+  return '<div class="card stack"><div class="row between"><h3>Garbage in '+esc(g.area)+'</h3>'+pill(s.s)+'</div><p>Truck <span class="mono">'+g.veh+'</span> at <b>'+hh(g.h).replace(':00',':'+String(g.m).padStart(2,'0'))+'</b>'+(s.s==='Scheduled'?' · arrives in '+Math.floor(s.eta/60)+'h '+(s.eta%60)+'m':'')+'</p></div>'}
+
+V.water=function(){
+  return '<h1>Water supply schedule</h1>'+streetChips()+'<p class="muted">Status is computed from the current time and each area\'s weekly slots.</p><div class="grid g2">'+WATER.map(function(w){var st=waterState(w);
+   return '<div class="card stack"><div class="row between"><h3>'+esc(w.area)+(w.s<12?' · Morning':' · Evening')+'</h3>'+(st.s==='Flowing'?'<span class="pill good">Flowing</span>':'<span class="pill warn">Off</span>')+'</div>'+
+   '<div class="row" style="gap:20px"><div class="kpi"><b>'+hh(w.s).replace(':00','')+'–'+hh(w.e).replace(':00','')+'</b><span>Supply window</span></div><div class="kpi"><b>'+w.bar+'</b><span>Pressure (bar)</span></div></div>'+
+   '<div class="row">'+DAYN.map(function(d,i){var on=w.days.indexOf(i)>=0;return '<span class="pill'+(on?'':'" style="background:var(--bg);color:var(--muted)')+'">'+d+'</span>'}).join('')+'</div>'+
+   '<p class="muted">'+(st.s==='Flowing'?'Ends in '+st.left+' min':'Next: '+st.next)+'</p></div>'}).join('')+'</div>';
+};
+V.garbage=function(){
+  return '<h1>Garbage collection</h1>'+streetChips()+'<div class="grid g2">'+GARB.map(function(g){var s=garbEta(g);
+   return '<div class="card stack"><div class="row between"><h3>'+esc(g.area)+'</h3>'+pill(s.s)+'</div><div class="row" style="gap:20px"><div class="kpi"><b>'+hh(g.h).replace(':00',':'+String(g.m).padStart(2,'0'))+'</b><span>Daily pickup</span></div><div class="kpi"><b class="mono" style="font-size:1.1rem">'+g.veh+'</b><span>Vehicle</span></div></div><div class="row">'+g.types.map(function(x){return '<span class="pill">'+x+'</span>'}).join('')+'</div>'+(s.s==='Scheduled'?'<p class="muted">Arrives in '+Math.floor(s.eta/60)+'h '+(s.eta%60)+'m</p>':'')+'</div>'}).join('')+'</div>';
+};
+
+V.complaint=function(){
+  return '<h1>Report an issue</h1><div class="grid g2"><form class="card stack" data-form="complaint" id="cform"><label>What is wrong?<textarea id="cd" rows="5" required placeholder="e.g. Water pipe has burst near the school gate and the road is flooded"></textarea></label>'+
+  '<label>Area<select id="ca">'+AREAS.map(function(a){return '<option'+(S.user.area===a.n?' selected':'')+'>'+a.n+'</option>'}).join('')+'</select></label>'+
+  '<label>Street / galli<select id="cs">'+['Main streets','Junction','Landmark','Gallis'].map(function(g){return '<optgroup label="'+g+'">'+STREETS.filter(function(x){return x.g===g}).map(function(x){return '<option>'+x.n+'</option>'}).join('')+'</optgroup>'}).join('')+'</select></label><label>House number or landmark (optional)<input id="cl" placeholder="Near the temple, house 24"></label>'+
+  '<label>Photo (optional)<input id="cp" type="file" accept="image/*"></label><img id="cprev" alt="" hidden style="border-radius:10px;max-height:200px;object-fit:cover">'+
+  '<button class="btn primary">Submit complaint</button></form>'+
+  '<div class="stack"><div class="detect" id="detectbox"><b>AI category detection</b><p class="muted">Start describing the issue. Civora suggests the category, department and priority as you type. This is a keyword-based demo, not a trained model.</p></div></div></div>';
+};
+function detectHtml(d){
+  if(!d)return '<b>AI category detection</b><p class="muted">Keep typing. Mention words like pipe, garbage, pothole, light or drain.</p>';
+  return '<div class="row between"><b>Detected: '+esc(d.category)+'</b>'+pill(d.priority)+'</div><div class="grid g2" style="margin-top:10px"><div class="kpi"><b style="font-size:1.2rem">'+esc(d.department)+'</b><span>Department</span></div><div class="kpi"><b style="font-size:1.2rem">'+d.eta+'</b><span>Estimated fix time</span></div></div><p class="muted" style="margin-top:8px">Confidence '+d.confidence+'% · Spotted: '+d.objects.join(', ')+'</p>';
+}
+V.track=function(){
+  var m=mine();
+  return '<div class="row between"><h1>Track complaints</h1><button class="btn primary" data-act="go" data-v="complaint">New complaint</button></div>'+(m.length?'<div class="stack">'+m.map(function(c){
+    var steps=['Submitted','Assigned','In Progress','Resolved'];var idx=c.status==='Rejected'?0:steps.indexOf(c.status);
+    return '<div class="card stack lift"><div class="row between"><div><h3>'+esc(c.cat)+'</h3><div class="muted mono">'+c.id+' · '+esc(c.loc)+'</div></div><div class="row">'+pill(c.pri)+pill(c.status)+'</div></div><p>'+esc(c.desc)+'</p>'+
+    '<div class="row" aria-label="Progress">'+steps.map(function(s,i){return '<span class="pill'+(i<=idx?(c.status==='Resolved'?' good':''):'" style="background:var(--bg);color:var(--muted)')+'">'+s+'</span>'}).join('')+'</div>'+
+    '<div class="row"><button class="btn sm" data-act="viewc" data-id="'+c.id+'">View timeline</button>'+(c.status==='Resolved'&&!c.rating?'<button class="btn sm primary" data-act="rate" data-id="'+c.id+'">Rate the fix</button>':'')+(c.rating?'<span class="pill warm">You rated '+c.rating+'/5</span>':'')+'</div></div>'}).join('')+'</div>':'<div class="card"><p>No complaints yet.</p></div>');
+};
+function complaintModal(id){
+  var c=S.comps.filter(function(x){return x.id===id})[0];if(!c)return '';
+  var e=S.emps.filter(function(x){return x.id===c.emp})[0];
+  return '<div class="row between"><h3>'+esc(c.cat)+'</h3><button class="btn sm" data-act="close">Close</button></div><div class="mono muted">'+c.id+' · '+esc(c.loc)+', '+esc(c.area)+'</div><p>'+esc(c.desc)+'</p><div class="row">'+pill(c.pri)+pill(c.status)+'<span class="pill">'+esc(c.dept)+'</span></div>'+(e?'<p class="muted">Assigned to '+esc(e.name)+' ('+e.id+')</p>':'')+(c.remark?'<p><b>Remark:</b> '+esc(c.remark)+'</p>':'')+
+   '<h3>Timeline</h3><div class="timeline">'+c.log.slice().reverse().map(function(l){return '<div><b>'+esc(l.t)+'</b><div class="muted">'+esc(l.d)+'</div><div class="muted mono">'+fmtDT(l.at)+' · '+esc(l.who)+'</div></div>'}).join('')+'</div>';
+}
+function certPaper(c){
+  var K=c.kind,row=function(l,v){return '<div class="detail"><b>'+l+'</b><span>'+esc(v)+'</span></div>'};
+  var rows=row('Name',c.name);
+  if(K==='Marriage')rows+=row('Second name',c.spouse||'Not provided');
+  rows+=row('Date',c.evDate)+row('Place',c.place);
+  if(K==='Birth')rows+=row('Parent 1',c.p1||'Not provided')+row('Parent 2',c.p2||'Not provided');
+  if(K==='Death')rows+=row('Relative',c.rel||'Not provided');
+  if(K==='Marriage')rows+=row('Witness / note',c.wit||'Not provided');
+  rows+=row('Demo note',c.note||'None');
+  return '<div class="paper"><div class="docmark">C I V O R A</div><div class="muted" style="font-size:.75rem">Kolhapur Municipal Corporation · Kasba Bawada</div><h4>'+K.toUpperCase()+' CERTIFICATE (MODEL)</h4><div class="stamp">MODEL — NOT AN OFFICIAL DOCUMENT</div><p class="disclaimer">Fictional demonstration only. This document is not issued, certified or verified by any government authority.</p><div class="details">'+rows+'</div><div class="footnote">Reference '+esc(c.ref)+' · CIVORA PROTOTYPE · FOR DEMONSTRATION ONLY</div></div>';
+}
+function certList(){
+  var cl=myCerts();if(!cl.length)return '<p class="muted">No certificates yet. Generate one with the form.</p>';
+  return cl.map(function(c){return '<div class="row between"><div><b>'+esc(c.type)+'</b><div class="muted mono">'+esc(c.ref)+' · '+fmtD(c.date)+'</div></div><div class="row">'+pill(c.status)+(c.status==='Issued'?'<button class="btn sm" data-act="viewcert" data-id="'+c.id+'">View</button>':'')+'</div></div>'}).join('')}
+function certPreview(){
+  var c=S.certs.filter(function(x){return x.id===S.lastCert})[0];
+  return c&&c.kind?certPaper(c)+'<div class="row"><button class="btn sm" data-act="copycert" data-id="'+c.id+'">Copy summary</button></div>':'<div class="emptycert"><b>Ready when you are</b><span class="muted">Fill in the form and select Generate certificate. Your sample certificate appears here.</span></div>';
+}
+V.certs=function(){
+  var f=function(id,l,ph,extra){return '<label>'+l+'<input id="cf-'+id+'" placeholder="'+ph+'" maxlength="100"'+(extra||'')+'></label>'};
+  return '<h1>Certificates</h1><p class="muted">Fill in the form to get a sample certificate. Use fictional details only. Nothing is sent anywhere.</p><div class="grid g2"><form class="card stack" data-form="cert" id="certform"><h3>Enter details</h3>'+
+  '<label>Certificate type<select id="cf-type"><option value="Birth">Birth certificate</option><option value="Death">Death certificate</option><option value="Marriage">Marriage certificate</option></select></label>'+
+  f('name','Person name','Alex Sample',' required')+f('date','Date','15 May 2010',' required')+f('place','Place','Kasba Bawada, Kolhapur',' required')+
+  '<div class="stack" id="cf-birth">'+f('p1','Parent / guardian 1','Jordan Sample')+f('p2','Parent / guardian 2','Taylor Sample')+'</div>'+
+  '<div class="stack" id="cf-death" hidden>'+f('rel','Parent / relative name (optional)','Casey Sample')+'</div>'+
+  '<div class="stack" id="cf-marriage" hidden>'+f('spouse','Second spouse name','Jamie Sample')+f('wit','Witness / note (optional)','Demo only')+'</div>'+
+  '<label>Demo note (optional)<textarea id="cf-note" rows="2" maxlength="300" placeholder="Fictional example for a prototype demo"></textarea></label>'+
+  '<div class="row"><button class="btn primary">Generate certificate</button><button class="btn" type="reset" data-act="certreset">Clear fields</button></div></form>'+
+  '<div class="stack"><div class="card stack"><h3>Certificate preview</h3><div id="certprev" class="stack">'+certPreview()+'</div></div><div class="card stack"><h3>My certificates</h3><div id="certlist" class="stack">'+certList()+'</div></div></div></div>';
+};
+function syncCertType(){var t=($('#cf-type')||{}).value;if(!t)return;$('#cf-birth').hidden=t!=='Birth';$('#cf-death').hidden=t!=='Death';$('#cf-marriage').hidden=t!=='Marriage'}
+var MAPT=null;
+V.map=function(){
+  var M0=mainPt(0),M1=mainPt(1);
+  var roads='<line x1="'+M0.x+'" y1="'+M0.y+'" x2="'+M1.x+'" y2="'+M1.y+'" stroke="var(--line)" stroke-width="14" stroke-linecap="round"/><text transform="translate(436 128) rotate(-21.8)" style="font-weight:600">Kasba Bawada Main Road</text>'+
+   '<line x1="130" y1="120" x2="260" y2="300" stroke="var(--line)" stroke-width="8"/><text x="110" y="112">Line Bazar</text>'+
+   '<line x1="340" y1="110" x2="470" y2="300" stroke="var(--line)" stroke-width="8"/><text x="330" y="102">Sugar Factory Road</text>';
+  for(var gi=1;gi<=5;gi++){var gp=mainPt(0.15*gi);roads+='<line x1="'+(gp.x-0.371*50).toFixed(0)+'" y1="'+(gp.y-0.928*50).toFixed(0)+'" x2="'+(gp.x+0.371*60).toFixed(0)+'" y2="'+(gp.y+0.928*60).toFixed(0)+'" stroke="var(--line)" stroke-width="4"/><text x="'+(gp.x+0.371*60+4).toFixed(0)+'" y="'+(gp.y+0.928*60+12).toFixed(0)+'" style="font-size:9px">Galli '+gi+'</text>'}
+  var ch=mainPt(0.5);roads+='<circle cx="'+ch.x+'" cy="'+ch.y+'" r="9" fill="var(--surface)" stroke="var(--accent)" stroke-width="3"/><text x="'+(ch.x+12)+'" y="'+(ch.y-8)+'" style="font-weight:600">Bawada Chowk</text>';
+  var river='<path d="M-10 190 C120 160 160 230 300 205 S480 120 620 150" stroke="#5aa2ff" stroke-width="16" fill="none" opacity=".35"/><text x="20" y="215" style="font-style:italic">Panchganga river</text>';
+  var areas=AREAS.map(function(a){return '<ellipse cx="'+a.x+'" cy="'+a.y+'" rx="170" ry="110" fill="var(--accent-soft)" opacity=".6"/><text x="'+a.x+'" y="'+(a.y-120)+'" text-anchor="middle" style="font-size:14px;font-weight:600">'+a.n+', Kolhapur</text>'}).join('');
+  var cm=S.comps.filter(function(c){return c.status!=='Resolved'&&c.status!=='Rejected'}).map(function(c,i){var sp=streetPos(c.street||streetOf(c.loc),i);var x=sp.x,y=sp.y;
+    var col=c.pri==='Emergency'||c.pri==='High'?'var(--bad)':'var(--warn)';return '<g><circle cx="'+x+'" cy="'+y+'" r="7" fill="'+col+'" stroke="var(--surface)" stroke-width="2"/><title>'+esc(c.id+' '+c.cat)+'</title></g>'}).join('');
+  var emps=S.emps.filter(function(e){return e.status==='On Field'}).map(function(e,i){var a=AREAS.filter(function(x){return x.n===e.area})[0]||AREAS[0];return '<rect x="'+(a.x-90+i*22)+'" y="'+(a.y+60)+'" width="9" height="9" rx="2" fill="var(--good)"><title>'+esc(e.name)+'</title></rect>'}).join('');
+  var trucks=GARB.map(function(g,i){return '<g class="truck" data-i="'+i+'"><rect x="-9" y="-6" width="18" height="12" rx="3" fill="var(--warm)" stroke="var(--surface)" stroke-width="2"/><title>'+g.veh+'</title></g>'}).join('');
+  return '<h1>Live map</h1><p class="muted">Schematic map of Kasba Bawada. Trucks move on a simulated loop. Open issues are red or amber dots.</p><div class="mapbox"><svg viewBox="0 0 600 380" role="img" aria-label="Schematic city map">'+river+areas+roads+emps+cm+trucks+'</svg></div><div class="row"><span class="pill bad">High priority issue</span><span class="pill warn">Open issue</span><span class="pill warm">Garbage truck</span><span class="pill good">Crew on field</span></div>';
+};
+function startMap(){
+  stopMap();var trucks=[].slice.call(document.querySelectorAll('.truck'));if(!trucks.length)return;var tick=0;
+  function step(){tick+=1;trucks.forEach(function(el,i){var ang=(tick/150+i/trucks.length)*Math.PI*2;var x=AREAS[0].x+150*Math.cos(ang),y=AREAS[0].y+95*Math.sin(ang);el.setAttribute('transform','translate('+x.toFixed(1)+' '+y.toFixed(1)+')')})}
+  step();MAPT=setInterval(step,100);
+}
+function stopMap(){if(MAPT){clearInterval(MAPT);MAPT=null}}
+var FAQ=[
+ {c:'Complaints',q:'How long does a complaint take to fix?',a:'The category check estimates a time when you submit. Emergencies target 4 hours, most others 1 to 3 days.'},
+ {c:'Complaints',q:'How do I report a problem on my street or galli?',a:'Open Report Issue, describe the problem, pick your street or galli and submit. You get a reference number such as CMP107.'},
+ {c:'Complaints',q:'Can I rate the fix?',a:'Yes. When a complaint shows Resolved in Track, tap Rate the fix and give 1 to 5 stars.'},
+ {c:'Water and garbage',q:'When does water come to my area?',a:'Kasba Bawada has a morning window (6 to 8 AM, Mon, Wed, Fri) and an evening window (5 to 7 PM, Tue, Thu, Sat). See the Water page for live status.'},
+ {c:'Water and garbage',q:'When does the garbage truck come?',a:'Three rounds run daily: 8:00 AM, 11:00 AM and 3:30 PM. Keep wet and dry waste in separate bins.'},
+ {c:'Certificates',q:'How do I get a certificate?',a:'Open Certificates, choose Birth, Death or Marriage, fill in the form and generate. The sample certificate appears at once and is saved in My certificates.'},
+ {c:'Certificates',q:'Is the certificate official?',a:'No. Civora is a student prototype. Every certificate is marked MODEL, NOT AN OFFICIAL DOCUMENT.'},
+ {c:'Emergency',q:'Who do I call in an emergency?',a:'Call 108 for rescue and ambulance, 101 for fire and 100 for police. Use Report Issue only for civic problems.'}];
+var CONTACTS=[['Rescue and ambulance','108'],['Fire brigade','101'],['Police','100'],['KMC helpline (sample)','1800-233-0000']];
+var faqCat='All';
+var QUICK=['Water supply today','Garbage truck timing','My complaints','Track CMP101','How do I get a certificate?','Emergency numbers','Is the office open?'];
+function officeOpen(){var d=new Date(),day=d.getDay(),h=d.getHours()+d.getMinutes()/60;var open=day!==0&&h>=10&&h<18;return {open:open,txt:open?'Open now until 6:00 PM':(day===0||(day===6&&h>=18)?'Closed. Opens Monday 10:00 AM':(h<10?'Closed. Opens today 10:00 AM':'Closed. Opens tomorrow 10:00 AM'))}}
+function faqHtml(){
+  var q=(($('#fq')||{}).value||'').toLowerCase().trim();
+  var list=FAQ.filter(function(f){return (faqCat==='All'||f.c===faqCat)&&(!q||(f.q+' '+f.a).toLowerCase().indexOf(q)>=0)});
+  return list.length?list.map(function(f){return '<details class="faq"><summary><b>'+esc(f.q)+'</b></summary><p class="muted">'+esc(f.a)+'</p></details>'}).join(''):'<p class="muted">No matching question. Try the chat, or send a request below.</p>';
+}
+function ticketList(){
+  var t=S.tickets||[];
+  return t.length?t.map(function(x){return '<div class="row between"><div><b>'+esc(x.topic)+'</b> <span class="mono muted">'+esc(x.id)+'</span><div class="muted">'+esc(x.msg.slice(0,90))+' · '+fmtD(x.at)+'</div></div><div class="row"><span class="pill warn">Open</span><button class="btn sm danger" data-act="delticket" data-id="'+x.id+'">Withdraw</button></div></div>'}).join(''):'<p class="muted">No requests yet. Your reference numbers will appear here.</p>';
+}
+V.help=function(){
+  var o=officeOpen();var u=S.user;
+  return '<div class="row between"><h1>Help and contact</h1><span class="pill '+(o.open?'good':'warn')+'">Office: '+o.txt+'</span></div>'+
+  '<div class="grid g4">'+CONTACTS.map(function(c){return '<div class="card stack"><span class="muted">'+c[0]+'</span><b class="mono" style="font-size:1.3rem">'+c[1]+'</b><button class="btn sm" data-act="copynum" data-v="'+c[1]+'">Copy number</button></div>'}).join('')+'</div>'+
+  '<div class="grid g2"><div class="card stack"><div class="row between"><h3>Ask Civora</h3><button class="btn sm" data-act="clearchat">Clear chat</button></div>'+
+  '<div class="chat" id="chatlog" aria-live="polite">'+(S.chat.length?S.chat.map(chatMsg).join(''):chatMsg({me:false,t:'Hi, I am the Civora assistant for Kasba Bawada. Pick a question below or type your own. You can also type a complaint number like CMP101.'}))+'</div>'+
+  '<div class="row">'+QUICK.map(function(x){return '<button class="btn sm" data-act="ask" data-q="'+esc(x)+'">'+esc(x)+'</button>'}).join('')+'</div>'+
+  '<form class="row" data-form="chat" style="flex-wrap:nowrap"><input id="cq" placeholder="Type a question" autocomplete="off" aria-label="Your question"><button class="btn primary">Send</button></form></div>'+
+  '<div class="card stack"><h3>Frequently asked</h3><input id="fq" type="search" placeholder="Search questions" aria-label="Search questions"><div class="seg wrap" role="group" aria-label="Category">'+['All','Complaints','Water and garbage','Certificates','Emergency'].map(function(c){return '<button data-act="faqcat" data-v="'+c+'" aria-pressed="'+(faqCat===c)+'">'+c+'</button>'}).join('')+'</div><div class="stack" id="faqlist">'+faqHtml()+'</div></div></div>'+
+  '<div class="grid g2"><form class="card stack" data-form="ticket"><h3>Send a request to the office</h3><label>Your name<input id="tn" required value="'+esc(u?u.name:'')+'" maxlength="80"></label><label>Topic<select id="tt"><option>Complaint follow-up</option><option>Water supply</option><option>Garbage collection</option><option>Certificates</option><option>Other</option></select></label><label>Message<textarea id="tm" rows="3" required maxlength="400" placeholder="Describe what you need help with"></textarea></label><button class="btn primary">Send request</button></form>'+
+  '<div class="card stack"><h3>My requests</h3><div class="stack" id="ticketlist">'+ticketList()+'</div><p class="muted">Office: Kolhapur Municipal Corporation ward office, Kasba Bawada. Mon to Sat, 10 AM to 6 PM. Requests are stored only in this browser.</p></div></div>';
+};
+function chatMsg(m){
+  var acts=(m.acts||[]).map(function(a){return '<button class="btn sm" data-act="'+a.a+'"'+(a.v?' data-v="'+esc(a.v)+'"':'')+(a.id?' data-id="'+esc(a.id)+'"':'')+'>'+esc(a.l)+'</button>'}).join('');
+  return '<div class="msg'+(m.me?' me':'')+'">'+esc(m.t).replace(/\n/g,'<br>')+(acts?'<div class="row" style="margin-top:8px">'+acts+'</div>':'')+'</div>'}
+function botReply(q){
+  var l=q.toLowerCase(),u=S.user,m;
+  if((m=/cmp\s?-?(\d+)/i.exec(q))){var id='CMP'+m[1];var c=S.comps.filter(function(x){return x.id===id})[0];
+    if(!c)return {t:'I could not find '+id+'. Check the number in Track, or report a new issue.',acts:[{l:'Open Track',a:'go',v:'track'}]};
+    var e=S.emps.filter(function(x){return x.id===c.emp})[0];
+    return {t:id+': '+c.cat+'\nStatus: '+c.status+' ('+c.pri+' priority)\nDepartment: '+c.dept+(e?'\nOfficer: '+e.name:'\nOfficer: not assigned yet')+'\nLocation: '+c.loc,acts:[{l:'View timeline',a:'viewc',id:c.id}]}}
+  var st=STREETS.filter(function(x){return l.indexOf(x.n.toLowerCase())>=0})[0];
+  if(st&&/water|garbage|waste|truck/.test(l))return {t:st.n+' is covered by the Kasba Bawada schedules. Water: morning and evening windows. Garbage: rounds at 8:00 AM, 11:00 AM and 3:30 PM.',acts:[{l:'Water schedule',a:'go',v:'water'},{l:'Garbage schedule',a:'go',v:'garbage'}]};
+  if(/water|tap|supply/.test(l)){var lines=WATER.map(function(w){var s=waterState(w);return (w.s<12?'Morning':'Evening')+' ('+hh(w.s).replace(':00','')+'–'+hh(w.e).replace(':00','')+'): '+(s.s==='Flowing'?'flowing now, '+s.left+' min left':'next '+s.next)}).join('\n');return {t:'Water in Kasba Bawada\n'+lines,acts:[{l:'Open Water page',a:'go',v:'water'}]}}
+  if(/garbage|waste|truck|trash/.test(l)){var gl=GARB.map(function(g){var s=garbEta(g);return g.veh+' at '+hh(g.h).replace(':00',':'+String(g.m).padStart(2,'0'))+': '+s.s.toLowerCase()+(s.s==='Scheduled'?' (in '+Math.floor(s.eta/60)+'h '+(s.eta%60)+'m)':'')}).join('\n');return {t:'Garbage rounds today\n'+gl,acts:[{l:'Open Garbage page',a:'go',v:'garbage'}]}}
+  if(/my complaint|complaints|status|track/.test(l)){var mm=mine();var open=mm.filter(function(x){return x.status!=='Resolved'&&x.status!=='Rejected'});
+    return {t:'You have '+open.length+' open and '+(mm.length-open.length)+' closed complaints.'+(open.length?'\n'+open.slice(0,3).map(function(x){return x.id+': '+x.cat+' ('+x.status+')'}).join('\n'):''),acts:[{l:'Open Track',a:'go',v:'track'}]}}
+  if(/report|new complaint|pothole|leak|drain|light|problem|issue/.test(l))return {t:'To report a problem, describe it, choose your street or galli and submit. The category and department are suggested as you type.',acts:[{l:'Report an issue',a:S.user?'go':'needlogin',v:'complaint'}]};
+  if(/certificate|birth|death|marriage/.test(l))return {t:'Open Certificates, choose Birth, Death or Marriage, fill in the form and generate. You get a sample certificate straight away. It is marked MODEL, not official.',acts:[{l:'Open Certificates',a:S.user?'go':'needlogin',v:'certs'}]};
+  if(/emergency|ambulance|fire|police|108|101/.test(l))return {t:'Emergency numbers\nRescue and ambulance: 108\nFire brigade: 101\nPolice: 100\nFor civic problems use Report an issue.',acts:[{l:'Copy 108',a:'copynum',v:'108'}]};
+  if(/open|office|hours|timing|contact|helpline|phone/.test(l)){var o=officeOpen();return {t:'Ward office, Kasba Bawada. Mon to Sat, 10 AM to 6 PM.\n'+o.txt+'\nHelpline: 1800-233-0000 (sample number).',acts:[{l:'Send a request',a:'focusticket'}]}}
+  if(/bill|tax|pay|payment|fee/.test(l))return {t:'Bill payment is not part of this version of Civora. For tax or fee questions, contact the ward office.',acts:[{l:'Send a request',a:'focusticket'}]};
+  if(/how long|eta|time to fix|resolve|fix/.test(l))return {t:'Estimated fix times are suggested when you submit a complaint: about 4 hours for emergencies, 12 to 48 hours for water, drainage and garbage, and up to 3 days for road work.',acts:[{l:'Open Track',a:'go',v:'track'}]};
+  if(/street|galli|lane|road|chowk|area|bawada/.test(l))return {t:'Civora covers Kasba Bawada: Kasba Bawada Main Road, Line Bazar, Sugar Factory Road, Bawada Chowk, Tarabai Park and Galli No. 1 to 5. See them on the live map.',acts:[{l:'Open Live Map',a:'go',v:'map'}]};
+  if(/language|hindi|marathi|english/.test(l))return {t:'Use the language menu at the top right to switch between English, Hindi and Marathi.'};
+  if(/hello|hi\b|hey|namaste/.test(l))return {t:'Hello'+(u?', '+u.name.split(' ')[0]:'')+'. How can I help with water, garbage, complaints or certificates?'};
+  if(/thank/.test(l))return {t:'You are welcome. Ask me anything else about Kasba Bawada services.'};
+  return {t:'I did not understand that. I can help with water, garbage, complaints, certificates, emergency numbers and office hours. You can also send a request to the office using the form below.',acts:[{l:'Send a request',a:'focusticket'}]};
+}
+function sendChat(q){
+  q=(q||'').trim();if(!q)return;
+  var lg=$('#chatlog');if(!lg)return;
+  S.chat.push({me:true,t:q});
+  lg.innerHTML=S.chat.map(chatMsg).join('')+'<div class="msg muted" id="typing">Typing…</div>';lg.scrollTop=lg.scrollHeight;
+  setTimeout(function(){var r=botReply(q);S.chat.push({me:false,t:r.t,acts:r.acts});var lg2=$('#chatlog');if(lg2){lg2.innerHTML=S.chat.map(chatMsg).join('');lg2.scrollTop=lg2.scrollHeight}save()},550);
+}
+V.profile=function(){
+  var u=S.user;
+  return '<h1>Profile and settings</h1><div class="grid g2"><div class="card stack"><h3>'+esc(u.name)+'</h3><p class="muted">Role: '+u.role+(u.id?' · '+u.id:'')+'</p>'+(u.role==='citizen'?'<p>Mobile: <span class="mono">'+esc(u.mobile)+'</span></p><p>Area: '+esc(u.area)+'</p>':'<p>Department: '+esc(u.dept||'Administration')+'</p>')+'</div>'+
+  '<div class="card stack"><h3>Preferences</h3><label>Language<select id="lang2"><option value="en">English</option><option value="hi">हिन्दी</option><option value="mr">मराठी</option></select></label><div class="row"><button class="btn" data-act="theme">Theme: '+S.theme+'</button><button class="btn danger" data-act="reset">Reset demo data</button></div></div></div>';
+};
+
+/* ---- admin ---- */
+V.admin=function(){
+  var c=S.comps;var cnt=function(s){return c.filter(function(x){return x.status===s}).length};
+  var byDept={};DEPTS.forEach(function(d){byDept[d]=c.filter(function(x){return x.dept===d}).length});var mx=Math.max.apply(null,Object.keys(byDept).map(function(k){return byDept[k]}).concat([1]));
+    var f=S.fstat||'All';var list=c.filter(function(x){return f==='All'||x.status===f});
+  return '<h1>Admin console</h1><div class="grid g4"><div class="card kpi"><b>'+c.length+'</b><span>Total complaints</span></div><div class="card kpi"><b>'+cnt('Submitted')+'</b><span>Awaiting assignment</span></div><div class="card kpi"><b>'+(cnt('Assigned')+cnt('In Progress'))+'</b><span>In the field</span></div><div class="card kpi"><b>'+cnt('Resolved')+'</b><span>Resolved</span></div></div>'+
+  '<div class="grid g2"><div class="card stack"><h3>Complaints by department</h3>'+DEPTS.map(function(d){return '<div class="bar-h"><span>'+d+'</span><div class="track"><i style="width:'+Math.round(byDept[d]/mx*100)+'%"></i></div><b>'+byDept[d]+'</b></div>'}).join('')+'</div>'+
+  '<div class="card stack"><h3>Field staff</h3><div class="row" style="gap:28px"><div class="kpi"><b>'+S.emps.length+'</b><span>Total staff</span></div><div class="kpi"><b>'+S.emps.filter(function(e){return e.status==='On Field'}).length+'</b><span>On field</span></div><div class="kpi"><b>'+S.emps.filter(function(e){return e.status==='On Leave'}).length+'</b><span>On leave</span></div></div>'+
+  '</div></div>'+
+  '<div class="row between"><h2>Complaints</h2><select class="inline" id="fstat" aria-label="Filter status">'+['All','Submitted','Assigned','In Progress','Resolved','Rejected'].map(function(s){return '<option'+(s===f?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>'+
+  '<div class="tablewrap"><table><thead><tr><th>ID</th><th>Issue</th><th>Area</th><th>Priority</th><th>Status</th><th>Assigned</th><th>Action</th></tr></thead><tbody>'+list.map(function(x){
+    var opts=S.emps.filter(function(e){return e.dept===x.dept&&e.status!=='On Leave'});
+    return '<tr><td class="mono">'+x.id+'</td><td><b>'+esc(x.cat)+'</b><div class="muted">'+esc(x.desc.slice(0,70))+'</div></td><td>'+esc(x.area)+'</td><td>'+pill(x.pri)+'</td><td>'+pill(x.status)+'</td><td class="mono">'+(x.emp||'—')+'</td><td>'+
+    (x.status==='Submitted'?'<div class="row" style="flex-wrap:nowrap"><select class="inline" id="as-'+x.id+'" aria-label="Assign">'+(opts.length?opts.map(function(e){return '<option value="'+e.id+'">'+esc(e.name)+'</option>'}).join(''):'<option value="">No staff free</option>')+'</select><button class="btn sm primary" data-act="assign" data-id="'+x.id+'">Assign</button><button class="btn sm danger" data-act="reject" data-id="'+x.id+'">Reject</button></div>':'<button class="btn sm" data-act="viewc" data-id="'+x.id+'">Open</button>')+'</td></tr>'}).join('')+'</tbody></table></div>'+
+  '<h2>Employees</h2><div class="tablewrap"><table><thead><tr><th>ID</th><th>Name</th><th>Department</th><th>Area</th><th>Status</th><th>Rating</th><th>Done</th></tr></thead><tbody>'+S.emps.map(function(e){return '<tr><td class="mono">'+e.id+'</td><td>'+esc(e.name)+'<div class="muted">'+esc(e.role)+'</div></td><td>'+esc(e.dept)+'</td><td>'+esc(e.area)+'</td><td>'+pill(e.status)+'</td><td>'+e.rating+'</td><td>'+e.done+'</td></tr>'}).join('')+'</tbody></table></div>';
+};
+/* ---- employee ---- */
+V.tasks=function(){
+  var id=S.user.id;var mineT=S.comps.filter(function(c){return c.emp===id});
+  var active=mineT.filter(function(c){return c.status==='Assigned'||c.status==='In Progress'});
+  return '<h1>My field tasks</h1><div class="grid g3"><div class="card kpi"><b>'+active.length+'</b><span>Active</span></div><div class="card kpi"><b>'+mineT.filter(function(c){return c.status==='Resolved'}).length+'</b><span>Completed</span></div><div class="card kpi"><b>'+esc(S.user.area)+'</b><span>Assigned area</span></div></div>'+
+  (mineT.length?'<div class="stack">'+mineT.map(function(c){
+    var act='';if(c.status==='Assigned'&&c.stage!=='Work Accepted')act='<button class="btn primary sm" data-act="accept" data-id="'+c.id+'">Accept task</button>';
+    else if(c.status==='Assigned')act='<button class="btn primary sm" data-act="start" data-id="'+c.id+'">Start work</button>';
+    else if(c.status==='In Progress')act='<form class="row" data-form="complete" data-id="'+c.id+'" style="flex-wrap:nowrap"><input id="rm-'+c.id+'" placeholder="Completion remark" required><button class="btn primary sm">Mark resolved</button></form>';
+    return '<div class="card stack"><div class="row between"><div><h3>'+esc(c.cat)+'</h3><div class="mono muted">'+c.id+' · '+esc(c.loc)+'</div></div><div class="row">'+pill(c.pri)+pill(c.status)+'</div></div><p>'+esc(c.desc)+'</p><div class="row">'+act+'<button class="btn sm" data-act="viewc" data-id="'+c.id+'">Timeline</button></div></div>'}).join('')+'</div>':'<div class="card"><p>No tasks assigned to you right now.</p></div>');
+};
+
+/* ---------- render ---------- */
+var PUB={home:1,map:1,help:1,login:1};
+function render(){
+  var r=role(),v=S.view;
+  if(!r&&!PUB[v])v='login';
+  if(r==='admin'&&['admin','map','profile'].indexOf(v)<0)v='admin';
+  if(r==='employee'&&['tasks','map','profile'].indexOf(v)<0)v='tasks';
+  if(r==='citizen'&&(v==='admin'||v==='tasks'||v==='login'))v='home';
+  S.view=v;
+  var scrollY=window.scrollY;
+  stopMap();
+  $('#app').innerHTML=shell(V[v]());
+  syncModal();
+  if(v==='map')startMap();
+  if(v==='profile'){var l=$('#lang2');if(l)l.value=S.lang}
+  document.title='Civora';
+  save();
+}
+function go(v){S.view=v;render();window.scrollTo(0,0)}
+function syncModal(){var old=$('.modal-bg');if(old)old.remove();if(S.modal){var d=document.createElement('div');d.innerHTML=modalHtml();document.body.appendChild(d.firstChild)}}
+function setModal(h){S.modal=h;syncModal()}
+
+/* ---------- events ---------- */
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-act]');if(!el){return}
+  var a=el.getAttribute('data-act'),id=el.getAttribute('data-id');
+  if(a==='closeBg'){if(e.target===el){setModal(null)}return}
+  var c=id&&S.comps.filter(function(x){return x.id===id})[0];
+  switch(a){
+   case 'go':go(el.getAttribute('data-v'));break;
+   case 'needlogin':toast('Sign in as a citizen to report an issue');go('login');break;
+   case 'lmode':S.loginMode=el.getAttribute('data-v');render();break;
+   case 'ltab':S.loginTab=el.getAttribute('data-v');render();break;
+   case 'theme':S.theme=S.theme==='auto'?'dark':S.theme==='dark'?'light':'auto';applyTheme();render();break;
+   case 'logout':S.user=null;S.loginMode='in';S.view='home';render();break;
+   case 'close':setModal(null);break;
+   case 'viewc':setModal(complaintModal(id));break;
+   case 'viewcert':{var ce=S.certs.filter(function(x){return x.id===id})[0];setModal('<div class="row between"><h3>'+esc(ce.type)+'</h3><button class="btn sm" data-act="close">Close</button></div>'+(ce.kind?certPaper(ce):'<div class="card stack"><p class="muted">Kolhapur Municipal Corporation</p><p>This certifies that <b>'+esc(ce.name)+'</b> has been issued a <b>'+esc(ce.type)+'</b>.</p><p class="mono">Reference '+esc(ce.ref)+' · Issued '+fmtD(ce.date)+'</p><p class="muted">Sample document for demonstration only.</p></div>'));break}
+   case 'copycert':{var cc=S.certs.filter(function(x){return x.id===id})[0];var sm='Civora '+cc.kind+' certificate (model); name: '+cc.name+'; date: '+cc.evDate+'; place: '+cc.place+'; MODEL - NOT AN OFFICIAL DOCUMENT.';
+     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(sm).then(function(){toast('Summary copied')},function(){toast('Copy is blocked here. Select the text on the certificate instead.')})}else toast('Copy is blocked here. Select the text on the certificate instead.');break}
+   case 'certreset':setTimeout(function(){S.lastCert='';var pv=$('#certprev');if(pv)pv.innerHTML=certPreview();syncCertType()},0);break;
+   case 'rate':{var h='<div class="row between"><h3>Rate this fix</h3><button class="btn sm" data-act="close">Close</button></div><div class="stars" id="stars" data-id="'+id+'">'+[1,2,3,4,5].map(function(n){return '<button data-act="star" data-n="'+n+'" data-id="'+id+'" aria-label="'+n+' stars">★</button>'}).join('')+'</div><p class="muted">Tap a star to submit your rating.</p>';setModal(h);break}
+   case 'star':c.rating=+el.getAttribute('data-n');c.log.unshift({t:'Citizen rated '+c.rating+'/5',d:'Feedback received',at:new Date().toISOString(),who:'Citizen'});setModal(null);toast('Thanks for rating');render();break;
+   case 'assign':{var sel=$('#as-'+id);if(!sel||!sel.value){toast('No free staff in this department');break}
+     var emp=S.emps.filter(function(x){return x.id===sel.value})[0];c.emp=emp.id;c.status='Assigned';c.stage='Assigned';c.updated=new Date().toISOString();emp.status=emp.status==='Active'?'On Field':emp.status;
+     c.log.push({t:'Assigned to '+emp.name,d:emp.id+' · '+c.dept,at:c.updated,who:'Admin'});notify('announcement','Complaint '+c.id+' assigned',emp.name+' will handle your '+c.cat.toLowerCase()+' complaint.',c.area,'Info');toast('Assigned to '+emp.name);render();break}
+   case 'reject':c.status='Rejected';c.updated=new Date().toISOString();c.log.push({t:'Rejected',d:'Rejected after review by admin',at:c.updated,who:'Admin'});notify('system','Complaint '+c.id+' rejected','Your complaint was closed after review.',c.area);toast('Complaint rejected');render();break;
+   case 'accept':c.stage='Work Accepted';c.updated=new Date().toISOString();c.log.push({t:'Work accepted',d:'Field officer accepted the task',at:c.updated,who:'Field team'});render();break;
+   case 'start':c.status='In Progress';c.stage='In Progress';c.updated=new Date().toISOString();c.log.push({t:'Work started',d:'Crew is on site',at:c.updated,who:'Field team'});notify('maintenance','Work started on '+c.id,'A crew is now working on your '+c.cat.toLowerCase()+' complaint.',c.area,'Info');render();break;
+   case 'ask':sendChat(el.getAttribute('data-q'));break;
+   case 'clearchat':S.chat=[];$('#chatlog').innerHTML=chatMsg({me:false,t:'Chat cleared. What would you like to know?'});save();break;
+   case 'faqcat':faqCat=el.getAttribute('data-v');[].forEach.call(document.querySelectorAll('[data-act=faqcat]'),function(b2){b2.setAttribute('aria-pressed',String(b2.getAttribute('data-v')===faqCat))});$('#faqlist').innerHTML=faqHtml();break;
+   case 'copynum':{var nm=el.getAttribute('data-v');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(nm).then(function(){toast('Copied '+nm)},function(){toast('Number: '+nm)})}else toast('Number: '+nm);break}
+   case 'delticket':S.tickets=(S.tickets||[]).filter(function(x){return x.id!==id});$('#ticketlist').innerHTML=ticketList();toast('Request withdrawn');save();break;
+   case 'focusticket':{var tm=$('#tm');if(tm){tm.scrollIntoView({behavior:'smooth',block:'center'});tm.focus()}break}
+   case 'reset':try{localStorage.removeItem(STORE)}catch(x){}S=seed();applyTheme();render();toast('Demo data reset');break;
+  }
+});
+document.addEventListener('change',function(e){
+  var t2=e.target;
+  if(t2.id==='lang'||t2.id==='lang2'){S.lang=t2.value;render()}
+  if(t2.id==='cf-type'){syncCertType()}
+  if(t2.id==='fstat'){S.fstat=t2.value;render()}
+  if(t2.id==='cp'){var f=t2.files&&t2.files[0];var im=$('#cprev');if(f&&im){var rd=new FileReader();rd.onload=function(){im.src=rd.result;im.hidden=false;S._photo=rd.result};rd.readAsDataURL(f)}}
+});
+document.addEventListener('input',function(e){
+  if(e.target.id==='fq'){$('#faqlist').innerHTML=faqHtml()}
+  if(e.target.id==='cd'){var b=$('#detectbox');if(b)b.innerHTML=detectHtml(detect(e.target.value))}
+});
+document.addEventListener('submit',function(e){
+  var f=e.target.closest('[data-form]');if(!f)return;e.preventDefault();var k=f.getAttribute('data-form'),id=f.getAttribute('data-id');
+  var v=function(i){return ($('#'+i)||{}).value};
+  var lerr=function(m){var el=$('#lerr');if(el){el.textContent=m;el.hidden=false}else toast(m)};
+  if(k==='login-citizen'){var mob=v('lm').trim(),acc=S.accounts.filter(function(x){return x.mobile===mob})[0];
+    if(!acc){lerr('No account found for this mobile number. Create an account first.')}
+    else if(sha256(acc.salt+':'+v('lp'))!==acc.hash){lerr('Wrong password. Try again.')}
+    else{S.user={role:'citizen',name:acc.name,mobile:acc.mobile,area:acc.area,id:acc.mobile};S.view='dashboard';render();toast('Welcome back, '+acc.name.split(' ')[0])}}
+  else if(k==='signup'){var nm=v('sn').trim(),mb=v('sm').trim(),pw=v('sp');
+    if(!/^[0-9]{10}$/.test(mb)){lerr('Enter a 10-digit mobile number.')}
+    else if(pw.length<6){lerr('Password must be at least 6 characters.')}
+    else if(pw!==v('sp2')){lerr('The two passwords do not match.')}
+    else if(S.accounts.some(function(x){return x.mobile===mb})){lerr('An account with this mobile number already exists. Sign in instead.')}
+    else{var ac=mkAccount(nm,mb,pw);S.accounts.push(ac);S.user={role:'citizen',name:ac.name,mobile:ac.mobile,area:ac.area,id:ac.mobile};S.view='dashboard';render();toast('Account created. Welcome, '+nm.split(' ')[0])}}
+  else if(k==='login-admin'){if(v('au')==='admin'&&v('ap')==='admin123'){S.user={role:'admin',name:'KMC Admin',id:'ADMIN',dept:'Administration'};S.view='admin';render()}else toast('Wrong username or password')}
+  else if(k==='login-emp'){var em=S.emps.filter(function(x){return x.id===v('eu').trim().toUpperCase()})[0];if(em&&v('ep')==='emp123'){S.user={role:'employee',name:em.name,id:em.id,dept:em.dept,area:em.area};S.view='tasks';render()}else toast('Check the employee ID and password')}
+  else if(k==='complaint'){
+    var d=detect(v('cd'))||{category:'General Civic Issue',department:'Health & Hygiene',priority:'Medium',eta:'3 days',confidence:70};
+    var cid=nextCid(),now=new Date().toISOString();
+    S.comps.unshift({id:cid,cat:d.category,desc:v('cd').trim(),loc:v('cs')+(v('cl').trim()?', '+v('cl').trim():''),street:v('cs'),area:v('ca'),status:'Submitted',pri:d.priority,dept:d.department,emp:'',stage:'',owner:'9876543210',submitted:now,updated:now,rating:0,remark:'',conf:d.confidence,photo:S._photo||'',log:[{t:'Complaint submitted',d:'Classified as '+d.category+' ('+d.confidence+'% confidence)',at:now,who:'Citizen'}]});
+    S._photo='';notify('announcement','Complaint '+cid+' received','Routed to '+d.department+'. Estimated fix time '+d.eta+'.',v('ca'),'Info');
+    S.modal='<h3>Complaint registered</h3><div class="kpi"><b class="mono">'+cid+'</b><span>Reference number</span></div><p>Category: <b>'+esc(d.category)+'</b><br>Department: '+esc(d.department)+'<br>Estimated fix: '+d.eta+'</p><button class="btn primary" data-act="close">Done</button>';S.view='track';render();
+  }
+  else if(k==='cert'){var kind=v('cf-type');var nn=S.certs.length+1;var c2={id:'CE'+(100+nn)+'-'+Math.floor(Math.random()*900+100),owner:S.user.mobile,kind:kind,type:kind+' Certificate',name:v('cf-name').trim(),evDate:v('cf-date').trim(),place:v('cf-place').trim(),p1:v('cf-p1').trim(),p2:v('cf-p2').trim(),rel:v('cf-rel').trim(),spouse:v('cf-spouse').trim(),wit:v('cf-wit').trim(),note:v('cf-note').trim(),ref:'CRT-'+(21000+nn),date:new Date().toISOString(),status:'Issued'};
+    S.certs.unshift(c2);S.lastCert=c2.id;$('#certprev').innerHTML=certPreview();$('#certlist').innerHTML=certList();$('#certprev').scrollIntoView({behavior:'smooth',block:'start'});toast('Sample certificate generated');save()}
+  else if(k==='complete'){var c=S.comps.filter(function(x){return x.id===id})[0];c.status='Resolved';c.stage='Completed';c.remark=v('rm-'+id);c.updated=new Date().toISOString();c.log.push({t:'Resolved',d:c.remark,at:c.updated,who:'Field team'});
+    var em2=S.emps.filter(function(x){return x.id===c.emp})[0];if(em2){em2.done+=1}notify('maintenance','Complaint '+c.id+' resolved',c.remark,c.area,'Info');toast('Marked as resolved');render()}
+  else if(k==='chat'){var q0=v('cq');$('#cq').value='';sendChat(q0)}
+  else if(k==='ticket'){S.tickets=S.tickets||[];var tk={id:'HELP-'+(1001+S.tickets.length+Math.floor(Math.random()*9)),topic:v('tt'),msg:v('tm').trim(),name:v('tn').trim(),at:new Date().toISOString()};S.tickets.unshift(tk);$('#tm').value='';$('#ticketlist').innerHTML=ticketList();toast('Request sent. Reference '+tk.id);save()}
+});
+function applyTheme(){var r=document.documentElement;if(S.theme==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',S.theme)}
+applyTheme();
+render();
+})();
+</script>
+
+</body></html>
